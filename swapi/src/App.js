@@ -94,32 +94,6 @@ class App extends React.Component {
 	};
 
 	transformData = data => {
-		var newData = data.map(item => ({
-			key: item.url,
-			name: item.name || item.title,
-			url: item.url,
-			neighbors: [
-				item.people,
-				item.films,
-				item.species,
-				item.vehicles,
-				item.planets,
-				item.starships
-			].reduce(flattener)
-		}));
-		newData.forEach(function(element) {
-			let newEdges = element.neighbors.map(neighbor => ({
-				from: element.key,
-				to: neighbor
-			}));
-			this.setState(prevState => ({
-				edges: prevState.edges.concat(newEdges)
-			}));
-		}, this);
-		return newData;
-	};
-
-	/*transformData = data => {
 		return data.map(item => ({
 			key: item.url,
 			name: item.name || item.title,
@@ -133,7 +107,7 @@ class App extends React.Component {
 				item.starships
 			].reduce(flattener)
 		}));
-	};*/
+	};
 
 	onToggle = toggleEvent => {
 		if (toggleEvent.toggled) {
@@ -144,15 +118,25 @@ class App extends React.Component {
 					label: toggleEvent.node.name
 				})
 			});
+			let newEdges = toggleEvent.node.neighbors.map(neighbor => ({
+				from: toggleEvent.node.url,
+				to: neighbor
+			}));
+			this.setState(prevState => ({
+				edges: prevState.edges.concat(newEdges)
+			}));
 		} else {
-			let array = this.state.nodes;
-			let index = array
-				.map(function(e) {
-					return e.key;
-				})
-				.indexOf(toggleEvent.node.url);
-			array.splice(index, 1);
-			this.setState({ nodes: array });
+			let nodes = this.state.nodes.filter(
+				node => node.key !== toggleEvent.node.url
+			);
+
+			let edges = this.state.edges.filter(
+				edge => edge.from !== toggleEvent.node.url
+			);
+			this.setState({
+				nodes: nodes,
+				edges: edges
+			});
 		}
 	};
 
